@@ -6,8 +6,9 @@ Host multiple web projects from your local machine via one public URL using **Do
 
 1.  **Clone & Run Docker:**
     ```bash
-    git clone [https://github.com/your-username/window-to-internet.git](https://github.com/your-username/window-to-internet.git)
-    cd window-to-internet
+    cd <your-project-folder>
+    git clone [https://github.com/pratikchaudhari64/personal_devserver.git](https://github.com/pratikchaudhari64/personal_devserver.git)
+    cd <your-project-folder>
     docker compose up --build -d
     ```
     *(Starts Nginx on Docker port 8000, and FastAPI internally.)*
