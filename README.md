@@ -7,7 +7,7 @@ Host multiple web projects from your local machine via one public URL using **Do
 1.  **Clone & Run Docker:**
     ```bash
     cd <your-project-folder>
-    git clone [https://github.com/pratikchaudhari64/personal_devserver.git](https://github.com/pratikchaudhari64/personal_devserver.git)
+    git clone https://github.com/pratikchaudhari64/personal_devserver.git
     cd <your-project-folder>
     docker compose up --build -d
     ```
