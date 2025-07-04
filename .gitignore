@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+myenv/
+.venv/
+.venv_notion_app
+## pip-tools and poetry
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.ruff_cache/
+
+# OS specific
+.DS_Store
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.bak
+*.swp
+*~
+
+# IDE specific
+.vscode/        # VS Code settings (if you don't want to share them)
+.idea/          # PyCharm settings
+*.iml           # IntelliJ IDEA files
+
+# Environment variables and sensitive data
+.env            # Dotenv files (e.g., for FastAPI secrets like API keys)
+*.env           # Generic for any .env file
+*.local         # Other local configuration files
+notion_app/.env # If you have a specific .env inside notion_app
+notion_app/.venv_notion_app
+
+# Logs and databases
+*.log
+*.sqlite3       # Common for SQLite databases (e.g., development DB)
+*.db
+
+# Docker specific
+# If using Docker volumes that create local files you don't want tracked
+# e.g., if a database container creates a local volume that you mount
+# and don't want its contents in Git.
+# Generally, Dockerfiles, docker-compose.yaml are committed.
+
+# Ngrok configuration
+.ngrok2/ # ngrok's internal config directory
+ngrok.yml # ngrok's config file if you've created one explicitly
+
+# Build artifacts and compiled files
+dist/
+build/
+*.egg
+
+# Uploads or user-generated content (if your app handles them)
+# /uploads/
+
+# Pipenv specific
+Pipfile.lock # Often committed, but sometimes ignored if not canonical source
+
+# Node.js (if you integrate frontend with npm)
+node_modules/
+npm-debug.log
+yarn-error.log
