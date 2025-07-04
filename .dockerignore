@@ -1,0 +1,50 @@
+# Ignore version control directories
+.git
+.svn
+.hg
+
+# Ignore local development environment files and IDE-specific configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore temporary files, logs, and coverage reports
+*.log
+*.tmp
+*~
+temp/
+tmp/
+coverage/
+
+# Ignore common dependency/build output directories.
+# These are typically rebuilt/generated inside the container during the Docker build process.
+node_modules/      # For Node.js projects (npm, yarn)
+target/            # For Java/Maven projects
+build/             # Common build output directory (e.g., Java, Go, Rust)
+dist/              # Common distribution/compiled output directory (e.g., frontend builds, compiled binaries)
+__pycache__/       # For Python projects (bytecode cache)
+*.pyc              # For Python projects (compiled bytecode)
+venv/              # For Python virtual environments
+.venv/             # For Python virtual environments
+.venv_notion_app/  # For Python virtual environments
+*.egg-info/        # For Python packages
+.mypy_cache/       # For Python type checking cache
+
+# Ignore sensitive or local configuration files
+# These should NEVER be included in the Docker image.
+# Environment variables should be passed securely at runtime.
+.env               # Specific .env file
+.env.* # All files starting with .env. (e.g., .env.development, .env.production, .env.local)
+.envrc             # direnv environment files
+
+# Ignore OS-specific hidden files
+.DS_Store          # macOS specific desktop services store
+Thumbs.db          # Windows specific thumbnail cache
+
+# Ignore Docker-related configuration files themselves.
+# These are instructions for Docker, not part of the application's runtime code.
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
