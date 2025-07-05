@@ -1,4 +1,4 @@
-# Personal Web Server & Project Showcase
+# Personal Dev Server
 
 Host multiple web projects from your local machine via one public URL using **Docker**, **Nginx**, and a **tunneling tool** (like ngrok).
 
