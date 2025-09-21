@@ -1,53 +1,76 @@
-# my_docker_project/docker-compose.yml
+# docker-compose.yml
 
 services:
   # Nginx service definition
   nginx:
-    image: nginx:stable-alpine # Use the official Nginx image (Alpine variant for smaller size)
-    container_name: personals_nginx # Assign a custom name for easier identification
+    image: nginx:stable-alpine
+    container_name: personals_nginx
     ports:
-      - "8000:80" # Map host port 8000 to container port 80 (where Nginx listens)
-                  # This is the port you'll access from your host machine (e.g., in a browser)
+      - "8000:80" # Map host port 8000 to container port 80
     volumes:
-      # Mount your custom Nginx configuration file into the container
-      # ':ro' makes it read-only inside the container to prevent accidental modifications
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-      # Optional: Mount a directory for Nginx access and error logs to persist them on your host
-      # - ./nginx/logs:/var/log/nginx
     depends_on:
-      # Nginx should only start after the application services are healthy
+      # Nginx should only start after both application services are healthy
       notion_app:
-        condition: service_healthy # Ensure Notion app is healthy before starting Nginx
+        condition: service_healthy
+      personal_website:
+        condition: service_healthy
     networks:
-      - app_network # Connect Nginx to our custom application network
-    healthcheck: # Define a health check for the Nginx service itself
-      test: ["CMD", "curl", "-f", "http://localhost"] # Check if Nginx responds to HTTP requests
-      interval: 30s # Check every 30 seconds
-      timeout: 10s # Wait up to 10 seconds for a response
-      retries: 3 # Mark unhealthy after 3 consecutive failures
-      start_period: 10s # Give Nginx 10 seconds to start up before health checks begin
+      - app_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Personal Website service definition (Flask)
+  personal_website:
+    build:
+      context: ./personal_website/minimalistic_python
+      dockerfile: Dockerfile
+    container_name: personals_website
+    expose:
+      - "3001" # Expose port 3000 to other services within the Docker network
+    environment:
+      FLASK_ENV: development
+      FLASK_DEBUG: "True"
+    # volumes:
+      # Optional: Mount static files and templates for development hot-reload
+      # Remove these volumes in production
+      # - ./personal_website/minimalistic_python/static:/app/static
+      # - ./personal_website/minimalistic_python/templates:/app/templates
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # Notion application service definition (FastAPI)
   notion_app:
     build:
-      context: ./notion_app # Docker will look for the Dockerfile in the notion_app directory
-      dockerfile: Dockerfile # Specify the Dockerfile name (optional if named 'Dockerfile')
-    container_name: personals_notion_app # Assign a custom name
+      context: ./notion_app
+      dockerfile: Dockerfile
+    container_name: personals_notion_app
     expose:
-      - "5000" # Expose port 5000 to other services within the Docker network (Nginx can access it)
-              # Note: 'expose' does NOT publish to the host; 'ports' does.
-    # environment: # Uncomment and add environment variables if your app needs them
-    #   FASTAPI_ENV: development
+      - "5000"
+    environment:
+      FASTAPI_ENV: development
+      # Add your NOTION_TOKEN here if needed
+      # NOTION_TOKEN: ${NOTION_TOKEN}
     networks:
-      - app_network # Connect Notion app to our custom application network
-    healthcheck: # Define a health check for the Notion app service
-      test: ["CMD-SHELL", "curl -f http://localhost:5000/ || exit 1"] # Check the app's /health endpoint
-      interval: 10s # Check every 10 seconds
-      timeout: 5s # Wait up to 5 seconds for a response
-      retries: 5 # Mark unhealthy after 5 consecutive failures
-      start_period: 20s # Give the FastAPI app 20 seconds to start up before health checks begin
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
 # Define custom networks for inter-service communication
 networks:
   app_network:
-    driver: bridge # A user-defined bridge network provides better isolation and DNS resolution
+    driver: bridge
