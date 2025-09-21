@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="home-layout">
+    <section class="home-bio">
+        <h1>Hello! I'm Pratik Chaudhari</h1>
+        <p></p>
+        <p>Use the sidebar to explore projects, my blog, or CV. Feel free to ask the chatbot about my work or expertise.</p>
+    </section>
+    <section class="chatbot-container">
+        <h2>Ask me about my work!</h2>
+        <div id="chatbot">
+            <div id="messages"></div>
+            <input type="text" id="user-input" placeholder="Type a question...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </section>
+</div>
+<script>
+function sendMessage() {
+    const input = document.getElementById('user-input');
+    if (!input.value.trim()) return;
+    
+    const messages = document.getElementById('messages');
+    messages.innerHTML += `<div><strong>You:</strong> ${input.value}</div>`;
+    
+    fetch('/chat-cv', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({question: input.value})
+    })
+    .then(res => res.json())
+    .then(data => {
+        messages.innerHTML += `<div><strong>Bot:</strong> ${data.answer}</div>`;
+        messages.scrollTop = messages.scrollHeight;
+    });
+    
+    input.value = '';
+}
+
+// Allow Enter key to send message
+document.getElementById('user-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
+</script>
+{% endblock %}

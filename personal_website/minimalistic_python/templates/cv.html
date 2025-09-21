@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>CV</h1>
+    <a href="/download-cv" class="btn">Download My CV (PDF)</a>
+    <hr>
+    <h2>Chat with my CV</h2>
+    <div id="chatbot">
+        <!-- Chatbot placeholder UI -->
+        <div id="messages"></div>
+        <input type="text" id="user-input" placeholder="Ask about my work...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+{% endblock %}

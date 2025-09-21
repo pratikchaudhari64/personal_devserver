@@ -10,6 +10,7 @@ venv/
 myenv/
 .venv/
 .venv_notion_app
+venv_minimwebsite
 ## pip-tools and poetry
 *.egg-info/
 .pytest_cache/
