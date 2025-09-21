@@ -1,6 +1,6 @@
 # Stage 1: Builder Stage - Install Python dependencies
 # Uses a specific, slim Debian-based Python image for a smaller footprint
-FROM python:3.10-slim-buster AS builder
+FROM python:3.10-slim-bullseye AS builder
 
 
 # Set the working directory inside the container
@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Stage 2: Production Stage - Create the final, lean image
 # Start from the same slim base image for consistency and small size
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-bullseye
 
 # Set the working directory for the application
 WORKDIR /app

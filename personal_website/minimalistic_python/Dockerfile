@@ -1,7 +1,7 @@
 # Dockerfile for personal_website/minimalistic_python/Dockerfile
 
 # Use Python slim image for Flask application
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-bullseye
 
 # Set working directory
 WORKDIR /app
