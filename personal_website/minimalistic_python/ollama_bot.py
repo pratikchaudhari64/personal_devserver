@@ -1,64 +1,39 @@
-import time
 import asyncio
-from typing import Dict, Any
-from fastapi import FastAPI
-from pydantic import BaseModel
+from langchain_ollama import ChatOllama
+from typing import Optional
 
-# --- Simulated Ollama Chat (Non-blocking I/O) ---
-class SimulatedOllamaChat:
-    # ... (ainvoke implementation remains the same) ...
-    async def ainvoke(self, prompt: str, simulated_delay: float) -> str:
-        start_time = time.perf_counter()
-        # This await yields control, freeing the event loop for other user requests
-        await asyncio.sleep(simulated_delay) 
-        end_time = time.perf_counter()
-        return (
-            f"Response for '{prompt[:20]}...' | "
-            f"Inference time: {end_time - start_time:.2f}s"
+# 1. Declare the variable globally (initially None)
+# Use Optional[] for type hinting since it starts as None
+ollamachatllm: Optional[ChatOllama] = None 
+
+def bot_start():
+    """Initializes the Ollama client and sets the global variable."""
+    global ollamachatllm 
+    
+    try:
+        # Create the ChatOllama client
+        llm_client = ChatOllama(
+            model="gemma3:4b",
+            validate_model_on_init=True,
+            temperature=0.8,
+            num_predict=256,
+            # other params ...
         )
-ollamachat = SimulatedOllamaChat()
+        # Assign it to the global variable
+        ollamachatllm = llm_client
+        print("✅ Ollama Chat Client initialized successfully.")
 
-# --- Data Structure for a Single Request ---
-class SingleChatRequest(BaseModel):
-    prompt: str
-    simulated_delay: float = 2.0 # Default delay
+    except Exception as e:
+        print(f"❌ Error occurred during Ollama client initialization: {e}")
+        # Optionally re-raise the error or exit the program if this is critical
+        raise RuntimeError("Ollama service not accessible. Check if server is running.") from e
 
-app = FastAPI(title="Real-Time Concurrent Chat App")
-
-# --- The Generate Response Function (A separate task) ---
-async def generate_llm_response(prompt: str, delay: float) -> str:
-    # This function is where the non-blocking I/O occurs
-    return await ollamachat.ainvoke(prompt, delay)
-
-
-# --- The FastAPI Endpoint ---
-@app.post("/chat")
-async def handle_single_chat(request: SingleChatRequest) -> Dict[str, Any]:
-    """
-    Handles a single user request, initiates the LLM call, and waits ONLY 
-    for that specific result before returning.
+async def generate_llm_response(prompt: str) -> str:
+    """Handles asynchronous calls to the Ollama server."""
     
-    Other concurrent requests hitting this same endpoint will run in parallel 
-    because of the 'await' inside generate_llm_response.
-    """
-    request_start_time = time.perf_counter()
+    if not ollamachatllm:
+        raise RuntimeError("Ollama client has not been initialized. Call bot_start() first.")
     
-    print(f"\n[Server] Request received for: '{request.prompt[:20]}...'")
+    response = await ollamachatllm.ainvoke(prompt)
     
-    # 1. Initiate the LLM call and await its result.
-    # When this await is hit, the function yields, allowing other users 
-    # to hit the server and start their own tasks concurrently.
-    response_content = await generate_llm_response(
-        request.prompt, 
-        request.simulated_delay
-    )
-
-    request_end_time = time.perf_counter()
-    
-    return {
-        "prompt": request.prompt,
-        "response": response_content,
-        "total_user_wait_time": round(request_end_time - request_start_time, 2)
-    }
-
-# To run this: uvicorn main:app --reload
+    return response.content if hasattr(response, 'content') else str(response)

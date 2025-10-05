@@ -27,4 +27,4 @@ EXPOSE 3001
 # ENV PYTHONUNBUFFERED=1
 
 # Run the Flask application
-CMD ["python", "app.py"]
+CMD ["uvicorn", "fastapi_app:app", "--host", "0.0.0.0", "--port", "3001"] 
