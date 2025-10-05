@@ -27,12 +27,12 @@ def chatcv():
     
     # Your LLM response (placeholder for now)
     print(f"question: {question}")
-    LLM_resp = "hello, this is response from the LLM"
+    LLM_resp = "hello, this is response from the ollama LLM yippeee"
     
     # Return JSON response as expected by JavaScript
     return jsonify({"answer": LLM_resp})
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port = 3001)
+    app.run(debug=True, host="0.0.0.0", port = 3001)
     pass

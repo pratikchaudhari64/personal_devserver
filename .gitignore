@@ -39,6 +39,7 @@ Thumbs.db
 *.local         # Other local configuration files
 notion_app/.env # If you have a specific .env inside notion_app
 notion_app/.venv_notion_app
+*secrets/
 
 # Logs and databases
 *.log

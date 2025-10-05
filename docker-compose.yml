@@ -35,10 +35,10 @@ services:
     environment:
       FLASK_ENV: development
       FLASK_DEBUG: "True"
-    # volumes:
+    volumes:
       # Optional: Mount static files and templates for development hot-reload
       # Remove these volumes in production
-      # - ./personal_website/minimalistic_python/static:/app/static
+      - ./personal_website/minimalistic_python:/app
       # - ./personal_website/minimalistic_python/templates:/app/templates
     networks:
       - app_network
@@ -61,6 +61,9 @@ services:
       FASTAPI_ENV: development
       # Add your NOTION_TOKEN here if needed
       # NOTION_TOKEN: ${NOTION_TOKEN}
+    secrets:
+     - notion_api_key
+
     networks:
       - app_network
     healthcheck:
@@ -70,7 +73,36 @@ services:
       retries: 5
       start_period: 20s
 
+  ollama:
+    image: ollama/ollama # Official Ollama image
+    container_name: personals_ollama
+    # Map the default Ollama port to the host
+    ports:
+      - "11435:11434"
+    # Use a volume to persist models and data across restarts
+    volumes:
+      - ollama_data:/root/.ollama
+    # Ensure it joins the main application network
+    networks:
+      - app_network
+    # Configure Ollama to listen on all interfaces (0.0.0.0) within the container
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      # You may also need to configure resource limits depending on your machine
+    # Ollama is typically ready immediately, but a healthcheck can be added if needed
+    
+
+# Define the volume for Ollama data persistence
+volumes:
+  ollama_data:
+
+secrets:
+  notion_api_key:
+    file: ./.secrets/notion_api_key.txt
+
 # Define custom networks for inter-service communication
 networks:
   app_network:
     driver: bridge
+
+

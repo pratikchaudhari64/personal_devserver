@@ -8,6 +8,21 @@ import re
 
 load_dotenv()
 
+SECRET_PATH = "/run/secrets/notion_api_key"
+
+def load_notion_api_key():
+    """Reads the API key from the Docker secret file."""
+    if os.path.exists(SECRET_PATH):
+        with open(SECRET_PATH, 'r') as f:
+            # .strip() is important to remove any trailing newline characters
+            return f.read().strip()
+    else:
+        # Fallback for local development if not using Docker secrets
+        print("Warning: Notion secret file not found. Falling back to environment variable.")
+        return os.environ.get("NOTION_TOKEN")
+
+NOTION_API_KEY = load_notion_api_key()
+
 def get_markdown(page_number_dummy_input):
 
     notion_token = os.getenv('NOTION_TOKEN')
