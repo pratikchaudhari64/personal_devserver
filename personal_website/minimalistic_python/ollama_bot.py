@@ -1,6 +1,9 @@
 import asyncio
 from langchain_ollama import ChatOllama
 from typing import Optional
+import logging
+
+logger = logging.getLogger(__name__) 
 
 # 1. Declare the variable globally (initially None)
 # Use Optional[] for type hinting since it starts as None
@@ -13,7 +16,8 @@ def bot_start():
     try:
         # Create the ChatOllama client
         llm_client = ChatOllama(
-            model="gemma3:4b",
+            base_url="http://ollama:11434",
+            model="qwen2:0.5b",
             validate_model_on_init=True,
             temperature=0.8,
             num_predict=256,
@@ -33,7 +37,7 @@ async def generate_llm_response(prompt: str) -> str:
     
     if not ollamachatllm:
         raise RuntimeError("Ollama client has not been initialized. Call bot_start() first.")
-    
+    logger.info(f"LLM Request Prompt: {prompt[:100]}...")
     response = await ollamachatllm.ainvoke(prompt)
     
     return response.content if hasattr(response, 'content') else str(response)

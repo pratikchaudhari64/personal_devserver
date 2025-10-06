@@ -42,6 +42,11 @@ services:
       # - ./personal_website/minimalistic_python/templates:/app/templates
     networks:
       - app_network
+    
+    depends_on:
+      ollama:
+        condition: service_started
+
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3001 || exit 1"]
       interval: 10s
@@ -90,7 +95,12 @@ services:
       - OLLAMA_HOST=0.0.0.0
       # You may also need to configure resource limits depending on your machine
     # Ollama is typically ready immediately, but a healthcheck can be added if needed
-    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 # Define the volume for Ollama data persistence
 volumes:

@@ -5,6 +5,16 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+import logging
+import sys
+
+gunicorn_logger = logging.getLogger('gunicorn.error')
+root_logger = logging.getLogger() 
+
+if gunicorn_logger.handlers:
+    root_logger.handlers = [] 
+    root_logger.handlers.extend(gunicorn_logger.handlers)
+    root_logger.setLevel(gunicorn_logger.level) 
 
 from ollama_bot import bot_start, generate_llm_response # <-- Reused!
 
@@ -17,11 +27,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # Initialize templating (assuming your templates are in 'templates' folder)
 templates = Jinja2Templates(directory="templates")
 
-
-# 1. Startup Hook: Uses FastAPI's native event to run bot_start once
-# @app.on_event("startup")
-# def startup_event():
-#     print("Starting up FastAPI application...")
     
 bot_start()
 
@@ -41,7 +46,7 @@ async def blog(request: Request):
 
 @app.get("/cv")
 async def cv():
-    # FileResponse handles this natively
+    
     return FileResponse('static/cv.pdf', filename='PratikChaudhari_cv.pdf', media_type='application/pdf')
 
 
@@ -69,7 +74,3 @@ async def chatcv(request: Request):
         
     # Return a standard Python dictionary, FastAPI converts it to JSON automatically
     return {"answer": LLM_resp}
-
-# --- Execution Command (Terminal Only) ---
-# You would run this from the terminal, not inside the if __name__ block:
-# uvicorn app:app --host 0.0.0.0 --port 3001 --reload

@@ -16,26 +16,82 @@
     </section>
 </div>
 <script>
-function sendMessage() {
+
+async function sendMessage() {
     const input = document.getElementById('user-input');
     if (!input.value.trim()) return;
     
     const messages = document.getElementById('messages');
+    // Display user message immediately
     messages.innerHTML += `<div><strong>You:</strong> ${input.value}</div>`;
     
-    fetch('/chat-cv', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question: input.value})
-    })
-    .then(res => res.json())
-    .then(data => {
+    // Clear input field before the network call
+    const userQuestion = input.value;
+    input.value = '';
+    
+    //Disabling input
+    input.disabled = true;
+
+    // Add a temporary loading message for the user
+    const loadingMessageId = 'loading-' + Date.now();
+    messages.innerHTML += `<div id="${loadingMessageId}"><strong>Bot:</strong> <span style="color: grey; font-style: italic; font-size: 0.775rem;">Thinking...</span></div>`;
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+        // 1. AWAIT the result of the fetch call (HTTP Response)
+        const response = await fetch('/chat-cv', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({question: userQuestion})
+        });
+
+        // Crucial Check: Ensure the HTTP call was successful (e.g., status 200)
+        if (!response.ok) {
+            throw new Error(`Server returned an error: ${response.status}`);
+        }
+
+        // 2. AWAIT the parsing of the JSON body (the actual data object)
+        const data = await response.json();
+        
+        // Remove the loading message
+        document.getElementById(loadingMessageId).remove();
+
+        // 3. Update the UI with the final bot answer
         messages.innerHTML += `<div><strong>Bot:</strong> ${data.answer}</div>`;
         messages.scrollTop = messages.scrollHeight;
-    });
-    
-    input.value = '';
+
+    } catch (error) {
+        // This runs if the fetch fails (network issue) or if response.json() fails
+        document.getElementById(loadingMessageId)?.remove(); // Safely remove loading message
+        messages.innerHTML += `<div style="color: red;"><strong>Error:</strong> Failed to connect or receive valid data.</div>`;
+        messages.scrollTop = messages.scrollHeight;
+        console.error("Chatbot fetch error:", error);
+    } finally {
+        input.disabled = false;
+        input.focus();
+    }
 }
+
+// function sendMessage() {
+//     const input = document.getElementById('user-input');
+//     if (!input.value.trim()) return;
+    
+//     const messages = document.getElementById('messages');
+//     messages.innerHTML += `<div><strong>You:</strong> ${input.value}</div>`;
+    
+//     fetch('/chat-cv', {
+//         method: 'POST',
+//         headers: {'Content-Type': 'application/json'},
+//         body: JSON.stringify({question: input.value})
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//         messages.innerHTML += `<div><strong>Bot:</strong> ${data.answer}</div>`;
+//         messages.scrollTop = messages.scrollHeight;
+//     });
+    
+//     input.value = '';
+// }
 
 // Allow Enter key to send message
 document.getElementById('user-input').addEventListener('keypress', (e) => {
