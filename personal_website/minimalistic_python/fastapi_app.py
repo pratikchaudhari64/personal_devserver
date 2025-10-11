@@ -16,7 +16,8 @@ if gunicorn_logger.handlers:
     root_logger.handlers.extend(gunicorn_logger.handlers)
     root_logger.setLevel(gunicorn_logger.level) 
 
-from ollama_bot import bot_start, generate_llm_response # <-- Reused!
+# from ollama_bot import bot_start, generate_llm_response # <-- Reused!
+from gemini import RAG
 
 # --- SETUP ---
 app = FastAPI()
@@ -28,7 +29,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
     
-bot_start()
+# bot_start()
+SECRET_PATH = "/run/secrets/gemini_api_key"
+rag = RAG(GEMINI_EMBED_MODEL="gemini-embedding-001",
+          CHAT_MODEL_NAME="gemini-2.5-flash-lite",
+          API_KEY=open(SECRET_PATH, 'r').read())
 
 # --- Blocking HTML Routes ---
 
@@ -65,7 +70,8 @@ async def chatcv(request: Request):
     
     try:
         # Await the asynchronous LLM call
-        LLM_resp = await generate_llm_response(question)
+        # LLM_resp = await generate_llm_response(question)
+        LLM_resp = await rag.generate_with_retrieved_docs(query=question)
     except Exception as e:
         print(f"LLM Error: {e}")
         LLM_resp = "Sorry, the LLM service is temporarily unavailable."

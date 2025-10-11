@@ -1,9 +1,15 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import time
 import asyncio
-from ollama_bot import bot_start, generate_llm_response
+# from ollama_bot import bot_start, generate_llm_response
+from gemini import RAG
 
-bot_start()
+# bot_start()
+
+SECRET_PATH = "/run/secrets/geminiapi"
+rag = RAG(GEMINI_EMBED_MODEL="gemini-embedding-001",
+          CHAT_MODEL_NAME="gemini-2.5-flash-lite",
+          API_KEY=open(SECRET_PATH, 'r').read())
 
 app = Flask(__name__)
 
@@ -32,7 +38,8 @@ async def chatcv():
     # Your LLM response (placeholder for now)
     print(f"question: {question}")
     try:
-        LLM_resp = await generate_llm_response(question)
+        # LLM_resp = await generate_llm_response(question)
+        LLM_resp = await rag.generate_with_retrieved_docs(query=question)
     except Exception as e:
         print(f"LLM Error: {e}")
         LLM_resp = "Sorry, the LLM service is temporarily unavailable."

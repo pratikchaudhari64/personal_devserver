@@ -35,10 +35,10 @@ services:
     environment:
       FLASK_ENV: development
       FLASK_DEBUG: "True"
-    volumes:
+    # volumes:
       # Optional: Mount static files and templates for development hot-reload
       # Remove these volumes in production
-      - ./personal_website/minimalistic_python:/app
+      # - ./personal_website/minimalistic_python:/app
       # - ./personal_website/minimalistic_python/templates:/app/templates
     
     secrets:
