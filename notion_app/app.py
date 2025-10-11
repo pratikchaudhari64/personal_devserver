@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Response
 from fastapi.responses import JSONResponse, PlainTextResponse
 
-from notion_api import get_markdown
+from notion_api import get_plaintext_content_by_pg_url
 
 # Create a FastAPI application instance
 app = FastAPI()
@@ -11,12 +11,13 @@ async def home():
     """
     Root endpoint for the Notion application.
     Returns a welcome message.
+    testing if it is mounted!
     """
 
     return JSONResponse(content={"message": "Hello from Notion App (FastAPI)!"}, status_code = 200)
 
-@app.get('/page/{page_id}')
-async def get_notion_page_markdown(page_id: int):
+@app.get('/page')
+async def get_notion_page_markdown(url: str):
     """
     Retrieves the entire Markdown content of a Notion page by its ID.
     """
@@ -27,7 +28,7 @@ async def get_notion_page_markdown(page_id: int):
     # markdown_content = get_markdown(page_id)
     # print(markdown_content)
     try:
-        markdown_content = get_markdown(page_id)
+        markdown_content = get_plaintext_content_by_pg_url(url= url)
         # Return as PlainTextResponse with Markdown media type
         return Response(content=markdown_content, media_type="text/markdown")
     # except HTTPException as e:

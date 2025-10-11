@@ -1,5 +1,5 @@
 import os
-from notion_client import Client
+import notion_client
 
 from pprint import pprint
 from dotenv import load_dotenv
@@ -23,12 +23,13 @@ def load_notion_api_key():
 
 NOTION_API_KEY = load_notion_api_key()
 
-def get_markdown(page_number_dummy_input):
+def get_markdown(page_number_dummy_input, NOTION_API_KEY = load_notion_api_key()):
 
-    notion_token = os.getenv('NOTION_TOKEN')
+    # notion_token = os.getenv('NOTION_TOKEN')
+    notion_token = NOTION_API_KEY
     if notion_token is None:
         raise Exception("NOTION_TOKEN environment variable not found")
-    notion = Client(auth=os.environ["NOTION_TOKEN"])
+    notion = Client(auth=notion_token)
 
 
     # --- Helper function to extract page title ---
@@ -350,9 +351,29 @@ def get_markdown(page_number_dummy_input):
 
     return final_page_content_markdown
 
+def get_plaintext_content_by_pg_url(url):
+
+    pg_id = notion_client.helpers.get_id(url = url)
+    notion_key = load_notion_api_key()
+    notion = notion_client.Client(auth = notion_key)
+    pg_content = notion.blocks.children.list(block_id=pg_id)
+    full_page_content = ""
+    for result in pg_content['results']:
+        block_type = result['type']
+        if 'rich_text' in result[block_type].keys():
+            if len(result[block_type]['rich_text']) > 0:
+                for item in result[block_type]['rich_text']:
+                    plain_text_item = item['plain_text']
+                    full_page_content += plain_text_item
+                full_page_content += "\n"
+    
+    return full_page_content
 
 
 
 if __name__ == "__main__":
-    res = get_markdown(page_number_dummy_input=0)
-    print(res)
+
+    pg_content = get_plaintext_content_by_pg_url(url="https://www.notion.so/my-work-ex-265de5b2c12380428f0edae3c881a462")
+    print(pg_content)
+
+    
